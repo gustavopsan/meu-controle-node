@@ -1,4 +1,3 @@
-require("dotenv-safe").config();
 const HTTP = require('http');
 const CORS = require('cors');
 const JWT = require('jsonwebtoken');
