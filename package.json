@@ -4,7 +4,8 @@
   "description": "Backend para a aplicação Meu Controle",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "test": "nodemon index.js",
+    "start": "node index.js"
   },
   "author": "Gustavo P. Santana",
   "license": "ISC",
