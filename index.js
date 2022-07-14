@@ -8,15 +8,24 @@ const app = express();
 const DB = require('./controllers/dbConnect');
 const createUser = require('./controllers/user/createUser');
 const getUser = require('./controllers/user/getUser');
-const listUsers = require('./controllers/user/listUsers');
 const doLogin = require('./controllers/user/doLogin');
-const { userInfo } = require("os");
+const checkEmail = require('./controllers/user/checkEmail');
+
+const validateEmail = (email) => {
+    const emailRegex = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/i;
+    return emailRegex.test(email);
+}
+
+const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/;
+    return passwordRegex.test(password);
+}
 
 app.use(bodyParser.json());
 app.use(CORS());
 
 app.get('/', (req, res) => {
-    DB().then(response => {
+    DB().then(() => {
         console.info("API - Initialization: Conectado ao banco de dados");
         res.json({
             message: 'Server is running'
@@ -25,6 +34,9 @@ app.get('/', (req, res) => {
 })
 
 app.post('/createUser', (req, res) => {
+    DB().then(() => {
+        console.info("API - Create User: Conectado ao banco de dados");
+    })
 
     console.info("API - Create User: Iniciando processo de criação de usuário");
 
@@ -37,8 +49,30 @@ app.post('/createUser', (req, res) => {
     if (password !== confirmPassword) {
         console.error("API - Create User: Senhas não conferem");
         res.status(400).json({
+            errorId: 1,
             success: false,
             message: 'Passwords do not match'
+        })
+    } else if (!validateEmail(email)) {
+        console.error("API - Create User: Email inválido");
+        res.status(400).json({
+            errorId: 2,
+            success: false,
+            message: 'Email is invalid'
+        })
+    } else if (!validatePassword(password)) {
+        console.error("API - Create User: Senha inválida");
+        res.status(400).json({
+            errorId: 3,
+            success: false,
+            message: 'Password is invalid'
+        })
+    } else if (checkEmail(email)) {
+        console.error("API - Create User: Email já cadastrado");
+        res.status(400).json({
+            errorId: 4,
+            success: false,
+            message: 'Email already registered'
         })
     } else {
         createUser(name, email, password, subscriptionType).then(response => {
@@ -61,6 +95,9 @@ app.post('/createUser', (req, res) => {
 })
 
 app.post('/getUserData', (req, res) => {
+    DB().then(() => {
+        console.info("API - Get User Data: Conectado ao banco de dados");
+    })
 
     console.info("API - Get User Data: Iniciando processo de busca de usuário");
 
@@ -119,6 +156,10 @@ app.post('/checkSession', (req, res) => {
     const token = req.body.token;
     const userId = req.body.userId;
 
+    DB().then(() => {
+        console.info("API - Check Session: Conectado ao banco de dados");
+    })
+
     if(!token) {
         console.error("API - Check Session - Erro ao verificar sessão: token não informado");
         res.status(400).json({
@@ -162,6 +203,6 @@ app.post('/checkSession', (req, res) => {
 })
 
 const server = HTTP.createServer(app);
-server.listen(process.env.PORT || 3000, () => {
-    console.log(`Server is running on port ${process.env.PORT || 3000}`);
+server.listen(process.env.PORT || 4000, () => {
+    console.log(`Server is running on port ${process.env.PORT || 4000}`);
 });
