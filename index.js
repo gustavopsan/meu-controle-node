@@ -174,7 +174,7 @@ app.post('/authenticate', (req, res) => {
             console.info("API - Authenticate: Usuário autenticado com sucesso");
 
             const userId = response.dataValues.userId;
-            const token = JWT.sign({userId}, process.env.SECRET, {expiresIn: '1m'});
+            const token = JWT.sign({userId}, process.env.SECRET, {expiresIn: '1d'});
 
             res.json({
                 success: true,
