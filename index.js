@@ -175,7 +175,7 @@ app.post('/checkSession', (req, res) => {
                     message: 'Invalid token'
                 })
             } else {
-                if(decoded.userId === userId) {
+                if(decoded.userId == userId) {
                     console.info("API - Check Session: Sessão verificada com sucesso");
 
                     getUser(userId).then(response => {
