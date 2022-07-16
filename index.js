@@ -10,6 +10,7 @@ const createUser = require('./controllers/user/createUser');
 const getUser = require('./controllers/user/getUser');
 const doLogin = require('./controllers/user/doLogin');
 const checkEmail = require('./controllers/user/checkEmail');
+const listUsers = require('./controllers/user/listUsers');
 
 const validateEmail = (email) => {
     const emailRegex = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/i;
@@ -92,6 +93,41 @@ app.post('/createUser', (req, res) => {
             }
         })
     }
+})
+
+app.get('/listUsers', (req, res) => {
+    DB().then(() => {
+        console.info("API - List Users: Conectado ao banco de dados");
+    }).catch(error => {
+        console.error("API - List Users: Erro ao conectar ao banco de dados");
+        res.status(500).json({
+            success: false,
+            message: 'Error while connecting to database'
+        })
+    }).then(() => {
+        listUsers().then(response => {
+            if(response.errors) {
+                console.error("API - List Users: Erro ao listar usuários");
+                res.status(400).json({
+                    success: false,
+                    message: 'Error while listing users',
+                    errors: response.errors
+                })
+            } else {
+                console.info("API - List Users: Usuários listados com sucesso");
+                res.json({
+                    success: true,
+                    message: 'Users listed successfully on server log'
+                })
+            }
+        })
+    }).catch(error => {
+        console.error("API - List Users: Erro ao listar usuários");
+        res.status(500).json({
+            success: false,
+            message: 'Error while listing users'
+        })
+    })
 })
 
 app.post('/getUserData', (req, res) => {
