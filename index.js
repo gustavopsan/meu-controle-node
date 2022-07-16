@@ -9,7 +9,6 @@ const DB = require('./controllers/dbConnect');
 const createUser = require('./controllers/user/createUser');
 const getUser = require('./controllers/user/getUser');
 const doLogin = require('./controllers/user/doLogin');
-const checkEmail = require('./controllers/user/checkEmail');
 const listUsers = require('./controllers/user/listUsers');
 
 const validateEmail = (email) => {
@@ -37,62 +36,61 @@ app.get('/', (req, res) => {
 app.post('/createUser', (req, res) => {
     DB().then(() => {
         console.info("API - Create User: Conectado ao banco de dados");
+
+        console.info("API - Create User: Iniciando processo de criação de usuário");
+
+        let name = req.body.name;
+        let email = req.body.email;
+        let password = req.body.password;
+        let confirmPassword = req.body.confirmPassword;
+        let subscriptionType = req.body.subscriptionType;
+
+        if (password !== confirmPassword) {
+            console.error("API - Create User: Senhas não conferem");
+            res.status(400).json({
+                errorId: 1,
+                success: false,
+                message: 'Passwords do not match'
+            })
+        } else if (!validateEmail(email)) {
+            console.error("API - Create User: Email inválido");
+            res.status(400).json({
+                errorId: 2,
+                success: false,
+                message: 'Email is invalid'
+            })
+        } else if (!validatePassword(password)) {
+            console.error("API - Create User: Senha inválida");
+            res.status(400).json({
+                errorId: 3,
+                success: false,
+                message: 'Password is invalid'
+            })
+        } else {
+            createUser(name, email, password, subscriptionType).then(response => {
+                if(response.errors) {
+                    console.error("API - Create User: Erro ao criar usuário");
+                    
+                    if(response.errors[0].message === "email must be unique") {
+                        res.status(400).json({
+                            errorId: 4,
+                            success: false,
+                            message: 'Email must be unique'
+                        })
+                    }
+
+                } else {
+                    console.info("API - Create User: Usuário criado com sucesso");
+                    res.json({
+                        success: true,
+                        message: 'User created successfully'
+                    })
+                }
+            })
+        }
     })
 
-    console.info("API - Create User: Iniciando processo de criação de usuário");
-
-    let name = req.body.name;
-    let email = req.body.email;
-    let password = req.body.password;
-    let confirmPassword = req.body.confirmPassword;
-    let subscriptionType = req.body.subscriptionType;
-
-    if (password !== confirmPassword) {
-        console.error("API - Create User: Senhas não conferem");
-        res.status(400).json({
-            errorId: 1,
-            success: false,
-            message: 'Passwords do not match'
-        })
-    } else if (!validateEmail(email)) {
-        console.error("API - Create User: Email inválido");
-        res.status(400).json({
-            errorId: 2,
-            success: false,
-            message: 'Email is invalid'
-        })
-    } else if (!validatePassword(password)) {
-        console.error("API - Create User: Senha inválida");
-        res.status(400).json({
-            errorId: 3,
-            success: false,
-            message: 'Password is invalid'
-        })
-    } else if (checkEmail(email)) {
-        console.error("API - Create User: Email já cadastrado");
-        res.status(400).json({
-            errorId: 4,
-            success: false,
-            message: 'Email already registered'
-        })
-    } else {
-        createUser(name, email, password, subscriptionType).then(response => {
-            if(response.errors) {
-                console.error("API - Create User: Erro ao criar usuário");
-                res.status(400).json({
-                    success: false,
-                    message: 'Error while creating user',
-                    errors: response.errors
-                })
-            } else {
-                console.info("API - Create User: Usuário criado com sucesso");
-                res.json({
-                    success: true,
-                    message: 'User created successfully'
-                })
-            }
-        })
-    }
+    
 })
 
 app.get('/listUsers', (req, res) => {
