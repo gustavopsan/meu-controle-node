@@ -53,21 +53,21 @@ app.post('/createUser', (req, res) => {
 
         if (password !== confirmPassword) {
             console.error("API - Create User: Senhas não conferem");
-            res.status(400).json({
+            res.json({
                 errorId: 1,
                 success: false,
                 message: 'Passwords do not match'
             })
         } else if (!validateEmail(email)) {
             console.error("API - Create User: Email inválido");
-            res.status(400).json({
+            res.json({
                 errorId: 2,
                 success: false,
                 message: 'Email is invalid'
             })
         } else if (!validatePassword(password)) {
             console.error("API - Create User: Senha inválida");
-            res.status(400).json({
+            res.json({
                 errorId: 3,
                 success: false,
                 message: 'Password is invalid'
@@ -78,7 +78,7 @@ app.post('/createUser', (req, res) => {
                     console.error("API - Create User: Erro ao criar usuário");
                     
                     if(response.errors[0].message === "email must be unique") {
-                        res.status(400).json({
+                        res.json({
                             errorId: 4,
                             success: false,
                             message: 'Email must be unique'
@@ -112,7 +112,7 @@ app.get('/listUsers', (req, res) => {
         listUsers().then(response => {
             if(response.errors) {
                 console.error("API - List Users: Erro ao listar usuários");
-                res.status(400).json({
+                res.json({
                     success: false,
                     message: 'Error while listing users',
                     errors: response.errors
@@ -145,7 +145,7 @@ app.post('/getUserData', (req, res) => {
     getUser(id).then(response => {
         if(!response) {
             console.error("API - Get User Data: Usiário não encontrado");
-            res.status(400).json({
+            res.json({
                 success: false,
                 message: 'User not found'
             })
@@ -172,7 +172,7 @@ app.post('/authenticate', (req, res) => {
     doLogin(email, password).then(response => {
         if(!response) {
             console.error("API - Authenticate: Erro ao autenticar usuário");
-            res.status(400).json({
+            res.json({
                 success: false,
                 message: 'User not found or password is incorrect'
             })
@@ -202,7 +202,7 @@ app.post('/checkSession', (req, res) => {
 
     if(!token) {
         console.error("API - Check Session - Erro ao verificar sessão: token não informado");
-        res.status(400).json({
+        res.json({
             success: false,
             message: 'Token not provided'
         })
@@ -210,7 +210,7 @@ app.post('/checkSession', (req, res) => {
         JWT.verify(token, process.env.SECRET, (err, decoded) => {
             if(err) {
                 console.error("API - Check Session - Erro ao verificar sessão: sessão expirada");
-                res.status(400).json({
+                res.json({
                     success: false,
                     message: 'Invalid token'
                 })
@@ -232,7 +232,7 @@ app.post('/checkSession', (req, res) => {
                     })
                 } else {
                     console.error("API - Check Session - Erro ao verificar sessão: UID inválido");
-                    res.status(400).json({
+                    res.json({
                         success: false,
                         message: 'Invalid UID'
                     })
