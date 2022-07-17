@@ -51,6 +51,14 @@ app.post('/createUser', (req, res) => {
         let confirmPassword = req.body.confirmPassword;
         let subscriptionType = req.body.subscriptionType;
 
+        console.log({
+            name,
+            email,
+            password,
+            confirmPassword,
+            subscriptionType
+        })
+
         if (password !== confirmPassword) {
             console.error("API - Create User: Senhas não conferem");
             res.json({
