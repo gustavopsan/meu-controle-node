@@ -150,6 +150,15 @@ app.post('/getUserData', (req, res) => {
     console.info("API - Get User Data: Iniciando processo de busca de usuário");
 
     let id = req.body.userId;
+
+    if (!id) {
+        console.error("API - Get User Data: ID de usuário não informado");
+        res.json({
+            success: false,
+            message: 'User ID is not informed'
+        })
+    }
+
     getUser(id).then(response => {
         if(!response) {
             console.error("API - Get User Data: Usiário não encontrado");
@@ -178,6 +187,8 @@ app.post('/authenticate', (req, res) => {
     let password = req.body.password;
 
     doLogin(email, password).then(response => {
+        console.log(response);
+        
         if(!response) {
             console.error("API - Authenticate: Erro ao autenticar usuário");
             res.json({
