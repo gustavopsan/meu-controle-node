@@ -157,26 +157,26 @@ app.post('/getUserData', (req, res) => {
             success: false,
             message: 'User ID is not informed'
         })
+    } else {
+        getUser(id).then(response => {
+            if(!response) {
+                console.error("API - Get User Data: Usiário não encontrado");
+                res.json({
+                    success: false,
+                    message: 'User not found'
+                })
+            } else {
+                console.info("API - Get User Data: Usuário encontrado");
+                res.json({
+                    success: true,
+                    userId: response.dataValues.userId,
+                    name: response.dataValues.name,
+                    email: response.dataValues.email,
+                    subscriptionType: response.dataValues.subscriptionType
+                })
+            }
+        })
     }
-
-    getUser(id).then(response => {
-        if(!response) {
-            console.error("API - Get User Data: Usiário não encontrado");
-            res.json({
-                success: false,
-                message: 'User not found'
-            })
-        } else {
-            console.info("API - Get User Data: Usuário encontrado");
-            res.json({
-                success: true,
-                userId: response.dataValues.userId,
-                name: response.dataValues.name,
-                email: response.dataValues.email,
-                subscriptionType: response.dataValues.subscriptionType
-            })
-        }
-    })
 })
 
 app.post('/authenticate', (req, res) => {
